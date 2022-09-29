@@ -1,43 +1,32 @@
-.model small
-.data
-.code
-pa equ 0c800h
-pb equ 0c801h
-pc equ 0c802h
-cr equ 0c803h
-count db 10
-mov ax,@data
-mov ds,ax
-mov dx,cr
-mov al,80h
-out dx,al
-mov bh,count
-mov al,88h ; at a time one coil is selected
-up:mov dx,pc
-out dx,al
-call delay
-ror al,1 ; rotate anticlockwise dec
-bh jnz up
-mov bh,count
-mov dx,pc
-mov al,88h
-back: out dx,al
-call delay
-rol al,1 ; rotate clockwise dec
-bh
-jnz back
-mov ah,4ch
-int 21h
-delay proc
-push cx
-push dx
-mov cx,8000h
-outloop:mov dx,4000h
-inloop: dec dx
-jnz inloop
-loop outloop
-pop dx
-pop
-cx ret
-delay endp
-end
+.MODEL SMALL
+.DATA
+PA EQU 0D800H
+ CR EQU 0D803H
+.CODE
+ MOV AX, @DATA ;
+ MOV DS, AX ; DATA segment Initialization
+ MOV AL, 80H ; Port A, B & C - Output
+ MOV DX, CR ;
+ OUT DX, AL ; Initialize 8255
+ MOV CX, 10 ; Set LOOP counter to repeat clk times
+ MOV DX, PA
+ MOV AL, 11H ; Store bit Pattern IN AL
+ L1: OUT DX, AL
+ CALL DELAY
+ ROR AL, 1 ; Rotate AL right by one bit to get next Pattern
+ LOOP L1
+ MOV AH, 4CH ;
+ INT 21H ; Exit to DOS
+DELAY PROC
+ PUSH CX
+ PUSH BX
+ MOV CX, 1000h
+LOOP2:MOV BX, 0FFFFH
+LOOP1:DEC BX
+ JNZ LOOP1 ; Repeat INNER LOOP FFFFH ×1000H times
+ LOOP LOOP2 ; Repeat OUTER LOOP FFFFH times
+ POP BX
+ POP CX
+ RET
+DELAY ENDP
+END
